@@ -2,6 +2,8 @@
 
 namespace gorriecoe\LinkField\Forms;
 
+use Override;
+use SilverStripe\Core\Validation\ValidationResult;
 use gorriecoe\LinkField\Forms\GridField\GridFieldHasOneDeleteButton;
 use gorriecoe\LinkField\Forms\GridField\GridFieldLinkDetailForm;
 use SilverShop\HasOneField\GridFieldHasOneButtonRow;
@@ -26,15 +28,15 @@ class HasOneLinkField extends HasOneButtonField
         DataObject $parent,
         $relationName,
         $title = null,
-        $linkConfig = array(),
+        $linkConfig = [],
         $useAutocompleter = false
     ) {
         $config = GridFieldConfig::create()
-            ->addComponent(new GridFieldHasOneButtonRow())
+            ->addComponent(GridFieldHasOneButtonRow::create())
             ->addComponent(new GridFieldSummaryField($relationName))
-            ->addComponent($detailForm = new GridFieldLinkDetailForm($linkConfig))
+            ->addComponent($detailForm = GridFieldLinkDetailForm::create($linkConfig))
             ->addComponent(new GridFieldHasOneDeleteButton())
-            ->addComponent(new GridFieldHasOneEditButton('buttons-before-right'));
+            ->addComponent(GridFieldHasOneEditButton::create('buttons-before-right'));
 
         $detailForm->setShowAdd(false);
 
@@ -53,6 +55,7 @@ class HasOneLinkField extends HasOneButtonField
         if ($detailForm) {
             $detailForm->setLinkConfig($linkConfig);
         }
+
         return $this;
     }
 
@@ -67,6 +70,7 @@ class HasOneLinkField extends HasOneButtonField
         if ($detailForm) {
             return $detailForm->getLinkConfig();
         }
+
         return [];
     }
 
@@ -85,25 +89,26 @@ class HasOneLinkField extends HasOneButtonField
      * {@inheritdoc}
      * @see \SilverStripe\Forms\FormField::validate()
      */
-    public function validate($validator)
+    #[Override]
+    public function validate(): ValidationResult
     {
-        $valid = parent::validate($validator);
+        $valid = parent::validate();
         if ($valid) {
             $result = $this->getRecord()->validate();
             $valid = $result->isValid();
             foreach ($result->getMessages() as $message) {
-                $validator->validationError($this->getName(), $message);
+                $valid->addError($message);
             }
         }
-        if ($valid && $validator->fieldIsRequired($this->getName()) && !$this->getRecord()->Type) {
-            $valid = false;
 
+        if ($valid && $validator->fieldIsRequired($this->getName()) && !$this->getRecord()->Type) {
             $errorMessage = _t('SilverStripe\\Forms\\Form.FIELDISREQUIRED', '{name} is required', [
                 'name' => strip_tags('"' . ($this->Title() ?: $this->getName()) . '"'),
             ]);
 
-            $validator->validationError($this->getName(), $errorMessage, 'required');
+            $valid->addError($errorMessage, 'required');
         }
+
         return $valid;
     }
 
@@ -116,7 +121,8 @@ class HasOneLinkField extends HasOneButtonField
      * {@inheritdoc}
      * @see \SilverStripe\Forms\GridField\GridField::FieldHolder()
      */
-    public function FieldHolder($properties = array())
+    #[Override]
+    public function FieldHolder($properties = [])
     {
         $html = parent::FieldHolder();
         $message = Convert::raw2xml($this->getMessage());

@@ -1,0 +1,176 @@
+diff --git a/composer.json b/composer.json
+index dc2ea51..63c1a75 100644
+--- a/composer.json
++++ b/composer.json
+@@ -17,14 +17,26 @@
+   ],
+   "homepage": "http://github.com/gorriecoe/silverstripe-linkfield",
+   "require": {
+-    "gorriecoe/silverstripe-link": "^1.0",
+-    "silvershop/silverstripe-hasonefield": "^3.0 || ^4.0",
+-    "symbiote/silverstripe-gridfieldextensions": "^3.1 || ^4.0"
++    "silvershop/silverstripe-hasonefield": "^5.0",
++    "symbiote/silverstripe-gridfieldextensions": "^5.2"
+   },
+   "extra": {
+     "installer-name": "linkfield",
+     "expose": [
+       "client/dist"
+     ]
++  },
++  "repositories": [
++    {
++      "type": "vcs",
++      "url": "https://github.com/PlasticStudio/silverstripe-link.git"
++    }
++  ],
++  "yet-to-update": {
++    "gorriecoe/silverstripe-link": {
++      "section": "require",
++      "current": "^1.0",
++      "reason": "no-compatible-stable-release"
++    }
+   }
+ }
+diff --git a/src/Extensions/LinkExtension.php b/src/Extensions/LinkExtension.php
+index 8a3770d..278e9dc 100644
+--- a/src/Extensions/LinkExtension.php
++++ b/src/Extensions/LinkExtension.php
+@@ -22,17 +22,13 @@ class LinkExtension extends Extension
+         // Set default Type value.
+         $types = array_keys($this->getOwner()->getTypes());
+         $typeField = $fields->dataFieldByName('Type');
+-        if (!in_array($typeField->Value(), $types)) {
++        if (!in_array($typeField->getValue(), $types)) {
+             $typeField->setValue($types[0]);
+         }
+-
+-        parent::updateCMSFields($fields);
+     }
+ 
+     public function onBeforeWrite()
+     {
+-        parent::onBeforeWrite();
+-
+         // re-set the Title if title fields are not editable.
+         if (!$this->shouldDisplayTitleFields()) {
+             $this->resetTitle();
+diff --git a/src/Forms/GridField/GridFieldLinkDetailForm.php b/src/Forms/GridField/GridFieldLinkDetailForm.php
+index e10944c..fa4f4a4 100644
+--- a/src/Forms/GridField/GridFieldLinkDetailForm.php
++++ b/src/Forms/GridField/GridFieldLinkDetailForm.php
+@@ -2,6 +2,7 @@
+ 
+ namespace gorriecoe\LinkField\Forms\GridField;
+ 
++use Override;
+ use SilverStripe\Forms\GridField\GridFieldDetailForm;
+ use SilverStripe\Core\Injector\Injector;
+ use SilverStripe\Forms\GridField\GridField;
+@@ -30,6 +31,7 @@ class GridFieldLinkDetailForm extends GridFieldDetailForm
+      * {@inheritDoc}
+      * @see \SilverStripe\Forms\GridField\GridFieldDetailForm::getRecordFromRequest()
+      */
++    #[Override]
+     protected function getRecordFromRequest(GridField $gridField, HTTPRequest $request): ?DataObject
+     {
+         /** @var Filterable $dataList */
+diff --git a/src/Forms/GridField/HasOneLinkField.php b/src/Forms/GridField/HasOneLinkField.php
+index a696aba..6fd9bca 100644
+--- a/src/Forms/GridField/HasOneLinkField.php
++++ b/src/Forms/GridField/HasOneLinkField.php
+@@ -2,6 +2,8 @@
+ 
+ namespace gorriecoe\LinkField\Forms;
+ 
++use Override;
++use SilverStripe\Core\Validation\ValidationResult;
+ use gorriecoe\LinkField\Forms\GridField\GridFieldHasOneDeleteButton;
+ use gorriecoe\LinkField\Forms\GridField\GridFieldLinkDetailForm;
+ use SilverShop\HasOneField\GridFieldHasOneButtonRow;
+@@ -87,25 +89,24 @@ class HasOneLinkField extends HasOneButtonField
+      * {@inheritdoc}
+      * @see \SilverStripe\Forms\FormField::validate()
+      */
+-    public function validate($validator)
++    #[Override]
++    public function validate(): ValidationResult
+     {
+-        $valid = parent::validate($validator);
++        $valid = parent::validate();
+         if ($valid) {
+             $result = $this->getRecord()->validate();
+             $valid = $result->isValid();
+             foreach ($result->getMessages() as $message) {
+-                $validator->validationError($this->getName(), $message);
++                $valid->addError($message);
+             }
+         }
+ 
+         if ($valid && $validator->fieldIsRequired($this->getName()) && !$this->getRecord()->Type) {
+-            $valid = false;
+-
+             $errorMessage = _t('SilverStripe\\Forms\\Form.FIELDISREQUIRED', '{name} is required', [
+                 'name' => strip_tags('"' . ($this->Title() ?: $this->getName()) . '"'),
+             ]);
+ 
+-            $validator->validationError($this->getName(), $errorMessage, 'required');
++            $valid->addError($errorMessage, 'required');
+         }
+ 
+         return $valid;
+@@ -120,6 +121,7 @@ class HasOneLinkField extends HasOneButtonField
+      * {@inheritdoc}
+      * @see \SilverStripe\Forms\GridField\GridField::FieldHolder()
+      */
++    #[Override]
+     public function FieldHolder($properties = [])
+     {
+         $html = parent::FieldHolder();
+diff --git a/src/LinkField.php b/src/LinkField.php
+index 458ac64..a7859a3 100644
+--- a/src/LinkField.php
++++ b/src/LinkField.php
+@@ -2,6 +2,8 @@
+ 
+ namespace gorriecoe\LinkField;
+ 
++use Override;
++use SilverStripe\Core\Validation\ValidationResult;
+ use gorriecoe\Link\Models\Link;
+ use gorriecoe\LinkField\Forms\GridField\GridFieldLinkDetailForm;
+ use gorriecoe\LinkField\Forms\HasOneLinkField;
+@@ -81,6 +83,7 @@ class LinkField extends FormField
+      *
+      * @return $this
+      */
++    #[Override]
+     public function setTitle($title)
+     {
+         $this->title = $title;
+@@ -91,6 +94,7 @@ class LinkField extends FormField
+      * @param array $properties
+      * @return CompositeField|GridField
+      */
++    #[Override]
+     public function Field($properties = [])
+     {
+         Requirements::css('gorriecoe/silverstripe-linkfield: client/dist/linkfield.css');
+@@ -136,6 +140,7 @@ class LinkField extends FormField
+      * @return array|RequestHandler|HTTPResponse|string
+      * @throws HTTPResponse_Exception
+      */
++    #[Override]
+     public function handleRequest(HTTPRequest $request)
+     {
+         switch ($this->isOneOrMany()) {
+@@ -263,7 +268,8 @@ class LinkField extends FormField
+         return $this->linkConfig;
+     }
+ 
+-    public function validate($validator)
++    #[Override]
++    public function validate(): ValidationResult
+     {
+         $valid = $this->Field()->validate($validator);
+         return $valid;
