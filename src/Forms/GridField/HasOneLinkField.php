@@ -26,15 +26,15 @@ class HasOneLinkField extends HasOneButtonField
         DataObject $parent,
         $relationName,
         $title = null,
-        $linkConfig = array(),
+        $linkConfig = [],
         $useAutocompleter = false
     ) {
         $config = GridFieldConfig::create()
-            ->addComponent(new GridFieldHasOneButtonRow())
+            ->addComponent(GridFieldHasOneButtonRow::create())
             ->addComponent(new GridFieldSummaryField($relationName))
-            ->addComponent($detailForm = new GridFieldLinkDetailForm($linkConfig))
+            ->addComponent($detailForm = GridFieldLinkDetailForm::create($linkConfig))
             ->addComponent(new GridFieldHasOneDeleteButton())
-            ->addComponent(new GridFieldHasOneEditButton('buttons-before-right'));
+            ->addComponent(GridFieldHasOneEditButton::create('buttons-before-right'));
 
         $detailForm->setShowAdd(false);
 
@@ -53,6 +53,7 @@ class HasOneLinkField extends HasOneButtonField
         if ($detailForm) {
             $detailForm->setLinkConfig($linkConfig);
         }
+
         return $this;
     }
 
@@ -67,6 +68,7 @@ class HasOneLinkField extends HasOneButtonField
         if ($detailForm) {
             return $detailForm->getLinkConfig();
         }
+
         return [];
     }
 
@@ -95,6 +97,7 @@ class HasOneLinkField extends HasOneButtonField
                 $validator->validationError($this->getName(), $message);
             }
         }
+
         if ($valid && $validator->fieldIsRequired($this->getName()) && !$this->getRecord()->Type) {
             $valid = false;
 
@@ -104,6 +107,7 @@ class HasOneLinkField extends HasOneButtonField
 
             $validator->validationError($this->getName(), $errorMessage, 'required');
         }
+
         return $valid;
     }
 
@@ -116,7 +120,7 @@ class HasOneLinkField extends HasOneButtonField
      * {@inheritdoc}
      * @see \SilverStripe\Forms\GridField\GridField::FieldHolder()
      */
-    public function FieldHolder($properties = array())
+    public function FieldHolder($properties = [])
     {
         $html = parent::FieldHolder();
         $message = Convert::raw2xml($this->getMessage());

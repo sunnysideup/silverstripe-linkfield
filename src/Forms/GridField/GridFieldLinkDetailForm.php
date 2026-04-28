@@ -16,7 +16,7 @@ class GridFieldLinkDetailForm extends GridFieldDetailForm
      */
     protected $linkConfig;
 
-    public function __construct($linkConfig = array(), $name = null, $showPagination = null, $showAdd = null)
+    public function __construct($linkConfig = [], $name = null, $showPagination = null, $showAdd = null)
     {
         parent::__construct($name, $showPagination, $showAdd);
 
@@ -44,10 +44,12 @@ class GridFieldLinkDetailForm extends GridFieldDetailForm
             if ($id == 'new') {
                 $record = $dataList->byID(0);
             }
+
             if (!$record) {
                 $record = Injector::inst()->create($gridField->getModelClass());
             }
         }
+
         // Set the config on the record if we have one.
         if ($record) {
             $record->link_requirements = $this->getLinkConfig();

@@ -2,14 +2,14 @@
 
 namespace gorriecoe\LinkField\Extensions;
 
-use SilverStripe\ORM\DataExtension;
+use SilverStripe\Core\Extension;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\HiddenField;
 
 /**
  * Used in conjunction with LinkField, makes the types of Links available configurable.
  */
-class LinkExtension extends DataExtension
+class LinkExtension extends Extension
 {
 
     public function updateCMSFields(FieldList $fields)
@@ -20,7 +20,7 @@ class LinkExtension extends DataExtension
         }
 
         // Set default Type value.
-        $types = array_keys($this->owner->getTypes());
+        $types = array_keys($this->getOwner()->getTypes());
         $typeField = $fields->dataFieldByName('Type');
         if (!in_array($typeField->Value(), $types)) {
             $typeField->setValue($types[0]);
@@ -46,7 +46,7 @@ class LinkExtension extends DataExtension
      */
     public function updateTypes(&$types)
     {
-        $linkSpecs = $this->owner->link_requirements;
+        $linkSpecs = $this->getOwner()->link_requirements;
         if (!empty($linkSpecs['types'])) {
             foreach ($types as $type => $typeName) {
                 if (empty($linkSpecs['types'][$type]) && !in_array($type, $linkSpecs['types'], true)) {
@@ -58,12 +58,12 @@ class LinkExtension extends DataExtension
 
     protected function shouldDisplayTitleFields()
     {
-        $linkSpecs = $this->owner->link_requirements;
+        $linkSpecs = $this->getOwner()->link_requirements;
         return !isset($linkSpecs['title_display']) || $linkSpecs['title_display'];
     }
 
     protected function resetTitle()
     {
-        $this->owner->Title = null;
+        $this->getOwner()->Title = null;
     }
 }
