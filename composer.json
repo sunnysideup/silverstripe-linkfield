@@ -17,14 +17,26 @@
   ],
   "homepage": "http://github.com/gorriecoe/silverstripe-linkfield",
   "require": {
-    "gorriecoe/silverstripe-link": "^1.0",
-    "silvershop/silverstripe-hasonefield": "^3.0 || ^4.0",
-    "symbiote/silverstripe-gridfieldextensions": "^3.1 || ^4.0"
+    "silvershop/silverstripe-hasonefield": "^5.0",
+    "symbiote/silverstripe-gridfieldextensions": "^5.2"
   },
   "extra": {
     "installer-name": "linkfield",
     "expose": [
       "client/dist"
     ]
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/PlasticStudio/silverstripe-link.git"
+    }
+  ],
+  "yet-to-update": {
+    "gorriecoe/silverstripe-link": {
+      "section": "require",
+      "current": "^1.0",
+      "reason": "no-compatible-stable-release"
+    }
   }
 }

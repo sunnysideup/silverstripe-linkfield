@@ -2,6 +2,7 @@
 
 namespace gorriecoe\LinkField\Forms\GridField;
 
+use Override;
 use SilverStripe\Forms\GridField\GridFieldDetailForm;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\GridField\GridField;
@@ -16,7 +17,7 @@ class GridFieldLinkDetailForm extends GridFieldDetailForm
      */
     protected $linkConfig;
 
-    public function __construct($linkConfig = array(), $name = null, $showPagination = null, $showAdd = null)
+    public function __construct($linkConfig = [], $name = null, $showPagination = null, $showAdd = null)
     {
         parent::__construct($name, $showPagination, $showAdd);
 
@@ -30,6 +31,7 @@ class GridFieldLinkDetailForm extends GridFieldDetailForm
      * {@inheritDoc}
      * @see \SilverStripe\Forms\GridField\GridFieldDetailForm::getRecordFromRequest()
      */
+    #[Override]
     protected function getRecordFromRequest(GridField $gridField, HTTPRequest $request): ?DataObject
     {
         /** @var Filterable $dataList */
@@ -44,10 +46,12 @@ class GridFieldLinkDetailForm extends GridFieldDetailForm
             if ($id == 'new') {
                 $record = $dataList->byID(0);
             }
+
             if (!$record) {
                 $record = Injector::inst()->create($gridField->getModelClass());
             }
         }
+
         // Set the config on the record if we have one.
         if ($record) {
             $record->link_requirements = $this->getLinkConfig();

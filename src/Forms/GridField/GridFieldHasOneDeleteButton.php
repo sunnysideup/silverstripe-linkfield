@@ -14,18 +14,12 @@ class GridFieldHasOneDeleteButton implements GridField_HTMLProvider, GridField_A
 {
 
     /**
-     * Fragment to write the button to
-     */
-    protected $targetFragment;
-
-    /**
      * GridFieldHasOneUnlinkButton constructor.
      * @param DataObject $parent
      * @param string $targetFragment
      */
-    public function __construct($targetFragment = 'buttons-before-right')
+    public function __construct(protected $targetFragment = 'buttons-before-right')
     {
-        $this->targetFragment = $targetFragment;
     }
 
     /**
@@ -76,7 +70,7 @@ class GridFieldHasOneDeleteButton implements GridField_HTMLProvider, GridField_A
 
         if (!$item->canDelete()) {
             throw new ValidationException(
-                _t(__CLASS__ . '.EditPermissionsFailure', 'No delete permissions')
+                _t(self::class . '.EditPermissionsFailure', 'No delete permissions')
             );
         }
 
@@ -86,7 +80,7 @@ class GridFieldHasOneDeleteButton implements GridField_HTMLProvider, GridField_A
 
         Controller::curr()->getResponse()->setStatusCode(
             200,
-            _t(__CLASS__ . '.Deleted', 'Deleted')
+            _t(self::class . '.Deleted', 'Deleted')
         );
     }
 
@@ -97,13 +91,7 @@ class GridFieldHasOneDeleteButton implements GridField_HTMLProvider, GridField_A
             return [];
         }
 
-        $field = new GridField_FormAction(
-            $gridField,
-            'gridfield_deleterelation',
-            _t(__CLASS__ . '.Delete', 'Delete'),
-            'deleterelation',
-            'deleterelation'
-        );
+        $field = GridField_FormAction::create($gridField, 'gridfield_deleterelation', _t(self::class . '.Delete', 'Delete'), 'deleterelation', 'deleterelation');
 
         $field->setAttribute('data-icon', 'chain--plus')
             ->addExtraClass(
