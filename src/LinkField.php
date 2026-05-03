@@ -268,10 +268,4 @@ class LinkField extends FormField
         return $this->linkConfig;
     }
 
-    #[Override]
-    public function validate(): ValidationResult
-    {
-        $valid = $this->Field()->validate($validator);
-        return $valid;
-    }
 }
