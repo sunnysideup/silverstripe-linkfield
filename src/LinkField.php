@@ -209,7 +209,7 @@ class LinkField extends FormField
 
         $config->getComponentByType(GridFieldDataColumns::class)
             ->setDisplayFields([
-                'Layout' => _t(self::class . '.LINK', 'Link')
+                'LayoutHTML' => _t(self::class . '.LINK', 'Link')
             ]);
 
         $field = GridField::create(
