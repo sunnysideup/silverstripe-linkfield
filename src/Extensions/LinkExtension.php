@@ -5,13 +5,13 @@ namespace gorriecoe\LinkField\Extensions;
 use SilverStripe\Core\Extension;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\HiddenField;
+use SilverStripe\ORM\FieldType\DBHTMLText;
 
 /**
  * Used in conjunction with LinkField, makes the types of Links available configurable.
  */
 class LinkExtension extends Extension
 {
-
     public function updateCMSFields(FieldList $fields)
     {
         // Hide Title field if the config requires it.
@@ -73,5 +73,5 @@ class LinkExtension extends Extension
     {
         $owner = $this->getOwner();
         return DBHTMLText::create_field(DBHTMLText::class, $owner->forTemplate());
-    }    
+    }
 }
