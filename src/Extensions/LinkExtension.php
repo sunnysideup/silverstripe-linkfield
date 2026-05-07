@@ -62,4 +62,16 @@ class LinkExtension extends Extension
     {
         $this->getOwner()->Title = null;
     }
+
+    /**
+     * Renders an HTML anchor tag for this link
+     * This is an alias to {@link forTemplate()}
+     *
+     * @return string
+     */
+    public function getLayoutHTML()
+    {
+        $owner = $this->getOwner();
+        return DBHTMLText::create_field(DBHTMLText::class, $owner->forTemplate());
+    }    
 }
